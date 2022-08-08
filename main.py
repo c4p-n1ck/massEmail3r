@@ -58,7 +58,7 @@ def mail(to='', sender='', subject='', markdown_body='', markup_body='', plain_b
         raise ValueError("Missing required arguments: (to, sender, subject, { markup_body or plain_body })")
     if markdown_body: markup_body = markdown.markdown( markdown_body ); plain_body = BeautifulSoup(markup_body, 'lxml').text
     if attachments: attachments = parse_attachments(attachments)
-    if plain_body and not markup_body: markup_body = plain_body
+    if plain_body and not markup_body: markup_body = plain_body  # This makes sure that Gmail will send the plain text body.
     if bcc: bcc = parse_carbon_copy(bcc)
     if cc: cc = parse_carbon_copy(cc)
     params = {
