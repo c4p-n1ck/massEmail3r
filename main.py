@@ -11,8 +11,8 @@ from simplegmail import Gmail
 SCRIPT_DIR = os.path.dirname(__file__)
 SECRET_FILE = os.path.join(SCRIPT_DIR, 'client_secret.json')
 if not os.path.isfile(SECRET_FILE):
-    print('Warning: `client_secret.json` not found, please select one.')
-    client_secret_path = os.path.expanduser( input("Enter path to you client_secret*.json: ") )
+    print('[-] Warning: `client_secret.json` not found, please select one.')
+    client_secret_path = os.path.expanduser( input("[<] Enter path to you client_secret*.json: ") )
     client_secret_filename = client_secret_path.split('/')[-1]
     shutil.copy2(client_secret_path, SCRIPT_DIR)
     shutil.move(os.path.join(SCRIPT_DIR, client_secret_filename), SECRET_FILE)
@@ -38,10 +38,10 @@ def parse_attachments(attachments):
         if len(_attachments) > 1:
             attachment = _attachments
             if not os.path.isfile(attachment):
-                raise ValueError(f"File not found: The file you're trying to attach isn't found at {attachment}")
+                raise ValueError(f"[-] File not found: The file you're trying to attach isn't found at {attachment}")
             attachments += [attachment]
         else:
-            raise ValueError(f"File not found: The file you're trying to attach isn't found at {attachments}")
+            raise ValueError(f"[-] File not found: The file you're trying to attach isn't found at {attachments}")
     return attachments
 
 
@@ -55,7 +55,7 @@ def mail(to='', sender='', subject='', markdown_body='', markup_body='', plain_b
         you're supposed to use a comma-separated values for cc and bcc or reference to a file with E-mails separated with new line or is a single-line comma-separated E-mails.
     """
     if not ( to and sender and subject and ( markdown_body or markup_body or plain_body ) ):
-        raise ValueError("Missing required arguments: (to, sender, subject, { markup_body or plain_body })")
+        raise ValueError("[-] Missing required arguments: (to, sender, subject, { markup_body or plain_body })")
     if markdown_body: markup_body = markdown.markdown( markdown_body ); plain_body = BeautifulSoup(markup_body, 'lxml').text
     if attachments: attachments = parse_attachments(attachments)
     if plain_body and not markup_body: markup_body = plain_body  # This makes sure that Gmail will send the plain text body.
@@ -76,34 +76,30 @@ def mail(to='', sender='', subject='', markdown_body='', markup_body='', plain_b
 
 
 def main():
-    subject = input("Subject: ")
-    to = input("To: ")
-    sender = input("Sender: ")
-    cc = input("CC [Filename/CSV/Leave empty if none]: ")
-    bcc = input("BCC [Filename/CSV/Leave empty if none]: ")
-    attachments = input("Attachments [CSV/Leave empty if none]: ")
-    print("Select the type of body you would like to send:")
-    print("1. Markdown")
-    print("2. Markup")
-    print("3. Plaintext")
-    body_type = input("Selection [1]-> ")
-    print("Select how would you like to send the body:")
-    print('1. Loading mail body from file.')
-    print('2. Entering mail body here itself.')
-    input_type = input("Selection [1]-> ")
+    subject = input("[Subject]: ")
+    to = input("[To]: ")
+    sender = input("[Sender]: ")
+    cc = input("[CC] <Filename/CSV/Leave empty if none>: ")
+    bcc = input("[BCC] <Filename/CSV/Leave empty if none>: ")
+    attachments = input("[Attachments] <CSV/Leave empty if none>: ")
+    print("-Select the type of body you would like to send-")
+    _options = ['Markdown', 'Markup', 'Plaintext']
+    for _option in _options:
+        print(f"{_options.index(_option) + 1}. {_option}")
+    body_type = input("[<] Selection [1]-> ")
+    print("-Select how would you like to send the body-")
+    _options = ['Loading mail body from file.', 'Entering mail body here itself.']
+    for _option in _options:
+        print(f"{_options.index(_option) + 1}. {_option}")
+    input_type = input("[<] Selection [1]-> ")
     if input_type == '1':
-        body = open(input("Enter the path to the file: "), 'r').read()
+        body = open(input("[<] Enter the path to the file: "), 'r').read()
     elif input_type == '2':
         # TODO: Using getch() to read the body from the user (for cool key-bindings to work!)
-        print("Enter you mail body [use Ctrl+D instead of Enter when done]: ")
+        print("[<] Enter you mail body [use Ctrl+D instead of Enter when done]: ")
         body = sys.stdin.read()
-        """
-        body = ''
-        for line in iter(input, body):
-            body += line + '\n'
-        """
     else:
-        raise ValueError("Invalid selection.")
+        raise ValueError("[-] Invalid selection.")
     print("[+] Sending mE-mail...")
     if body_type == '1':
         return mail(to, sender, subject, markdown_body=body, cc=cc, bcc=bcc, attachments=attachments)
@@ -112,7 +108,7 @@ def main():
     elif body_type == '3':
         return mail(to, sender, subject, plain_body=body, cc=cc, bcc=bcc, attachments=attachments)
     else:
-        raise ValueError("Invalid selection.")
+        raise ValueError("[-] Invalid selection.")
 
 
 if __name__ == '__main__':
@@ -120,7 +116,7 @@ if __name__ == '__main__':
         print('[+] Starting m-mailer...')
         fired = fire.Fire(main)
         if not fired:
-            raise Exception("Looks like something went wrong, but I'm not at all sure on what's that.")
+            raise Exception("[-] Looks like something went wrong, but I'm not at all sure on what's that.")
             sys.exit(1)
     except KeyboardInterrupt:
         print("\n[-] Exiting m-mailer...")
