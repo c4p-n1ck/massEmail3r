@@ -1,0 +1,5 @@
+*.json
+*.pyc
+*venv/
+__pycache__/
+*__dont_Add__**
